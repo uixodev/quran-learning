@@ -8,8 +8,11 @@
 import { join } from 'node:path';
 import { SOURCES } from './config.mjs';
 import { DATA, fetchFile, fetchNpm, readJson, pad3 } from './lib/util.mjs';
+import { stripTrailing } from './lib/alquran.mjs';
 
 const surahs = readJson(join(DATA, 'surahs.json')).filter((s) => s.available);
+// Если применён scripts/import-alquran.mjs, пунктуация перевода и транслитерация берутся из alquran.cloud.
+const overlay = readJson(join(DATA, 'sources.json')).overlay;
 let fail = 0;
 const err = (m) => { fail++; console.log('✗', m); };
 
@@ -34,16 +37,18 @@ for (const meta of surahs) {
   for (const a of ayahs) {
     n++;
     const k = `${meta.id}:${a.n}`;
-    if (a.ru !== RU[k]) { ruBad++; err(`перевод ${k} отличается от Tanzil`); }
-    if (a.tr !== TR[k]) { trBad++; err(`транслитерация ${k} отличается от Tanzil`); }
+    // С наложением alquran.cloud допустимо отличие только завершающей пунктуацией.
+    const ruOk = overlay ? stripTrailing(a.ru) === stripTrailing(RU[k] ?? '') : a.ru === RU[k];
+    if (!ruOk) { ruBad++; err(`перевод ${k} отличается от Tanzil`); }
+    if (!overlay && a.tr !== TR[k]) { trBad++; err(`транслитерация ${k} отличается от Tanzil`); }
     if (skeleton(a.ar) !== skeleton(QUL[k] ?? '')) { arBad++; arList.push(k); }
     const len = [...a.ar].length;
     for (const [s, e, r] of a.tj) if (!(0 <= s && s < e && e <= len && r >= 0)) err(`таджвид ${k}: диапазон ${s}-${e}`);
   }
 }
 console.log(`Проверено аятов: ${n}`);
-console.log(`Перевод Кулиева ≠ Tanzil:        ${ruBad}`);
-console.log(`Транслитерация ≠ Tanzil:         ${trBad}`);
+console.log(`Перевод Кулиева ≠ Tanzil${overlay ? ' (кроме пунктуации)' : ''}: ${ruBad}`);
+console.log(overlay ? 'Транслитерация: из alquran.cloud (en.transliteration), с Tanzil не сравнивается' : `Транслитерация ≠ Tanzil:         ${trBad}`);
 console.log(`Арабский ≠ QUL (по скелету):     ${arBad}${arList.length ? '  → ' + arList.join(', ') : ''}`);
 console.log(fail ? `\nОшибок: ${fail}` : '\nВсё сошлось.');
 process.exit(fail ? 1 : 0);

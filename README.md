@@ -37,8 +37,8 @@ npm run preview
 | Что | Источник (зафиксированная версия) | Лицензия |
 |---|---|---|
 | Арабский текст (Uthmani), названия сур, тип (мекканская/мединская), число аятов | npm [`quran-json@3.1.2`](https://www.npmjs.com/package/quran-json) (текст — Noble Qur'an Encyclopedia / Tanzil-орфография) | CC BY 4.0 (пакет); текст Корана — условия [Tanzil](https://tanzil.net/docs/text_license) |
-| Русский перевод — Эльмир Кулиев | тот же пакет; происхождение — Tanzil `ru.kuliev` | условия Tanzil — **проверьте** [tanzil.net/trans/ru.kuliev](https://tanzil.net/trans/ru.kuliev) перед публикацией |
-| Транслитерация (**латиница**) | тот же пакет; Tanzil `en.transliteration` | условия Tanzil |
+| Русский перевод — Эльмир Кулиев | тот же пакет (Tanzil `ru.kuliev`); завершающая пунктуация — из издания `ru.kuliev` на [api.alquran.cloud](https://alquran.cloud/api) (`npm run data:import-alquran`) | условия Tanzil — **проверьте** [tanzil.net/trans/ru.kuliev](https://tanzil.net/trans/ru.kuliev) перед публикацией |
+| Транслитерация (**латиница**) | издание `en.transliteration` на api.alquran.cloud (`npm run data:import-alquran`) | условия alquran.cloud — **проверьте** перед публикацией |
 | Разметка таджвида | npm [`react-native-quran-tajweed@0.1.3`](https://www.npmjs.com/package/react-native-quran-tajweed) (поле `text_uthmani_tajweed` Quran.com), перенесена на базовый текст скриптом выравнивания | MIT (пакет); данные Quran.com |
 | Шрифт Amiri Quran 1.003 | [google/fonts](https://github.com/google/fonts/tree/main/ofl/amiriquran) | SIL OFL 1.1 |
 | Шрифт Inter 5.2.8 (кириллица/латиница) | npm `@fontsource-variable/inter` | SIL OFL 1.1 |
@@ -47,7 +47,8 @@ npm run preview
 ### Транслитерация
 
 Кириллической транслитерации с проверенным источником найти не удалось, поэтому используется **латиница**
-(Tanzil `en.transliteration`). Поле `tr` в данных и код отображения не привязаны к алфавиту: когда появится
+(alquran.cloud `en.transliteration`; прежний вариант Tanzil читался хуже — `AAa`, `th` для ث и ذ — и содержал
+опечатку в 114:6). Поле `tr` в данных и код отображения не привязаны к алфавиту: когда появится
 проверенный кириллический источник, достаточно изменить сборку данных (`scripts/build-data.mjs`).
 
 ### Краткое введение к суре
@@ -67,13 +68,17 @@ npm run preview
 ### Проверки
 
 ```sh
+npm run data:import-alquran    # у себя: пунктуация перевода и транслитерация из alquran.cloud (затем закоммитить data/)
 npm run data:verify            # перевод и транслитерация побайтно сверяются с независимой копией Tanzil;
                                # арабский — со вторым источником (QUL) по скелету букв
 npm run data:compare-alquran   # ВТОРАЯ проверка с api.alquran.cloud (запускать у себя; из песочницы сайт недоступен)
 npm run audio:check            # HEAD-запросы к адресам аудио на everyayah.com (запускать у себя)
 ```
 
-Результат `data:verify` на момент сборки: 571 аят, перевод ≠ Tanzil: 0, транслитерация ≠ Tanzil: 0,
+`data:import-alquran` заменяет перевод только если без завершающей пунктуации он совпадает с нашим; иначе
+оставляет прежний и печатает отчёт. Порядок для новых сур: `build-data.mjs --all` → `data:import-alquran` → `data:verify`.
+
+Результат `data:verify` до наложения alquran.cloud: 571 аят, перевод ≠ Tanzil: 0, транслитерация ≠ Tanzil: 0,
 арабский ≠ QUL по скелету: 1 (80:37 — разное написание «يٕ» / «ئ», орфографический вариант).
 
 ### Отображение арабского

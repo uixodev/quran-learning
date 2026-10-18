@@ -11,7 +11,8 @@
     "data:build": "node scripts/build-data.mjs",
     "data:verify": "node scripts/verify-data.mjs",
     "data:compare-alquran": "node scripts/compare-alquran-cloud.mjs",
-    "audio:check": "node scripts/check-audio-urls.mjs"
+    "audio:check": "node scripts/check-audio-urls.mjs",
+    "data:import-alquran": "node scripts/import-alquran.mjs"
   },
   "devDependencies": {
     "vite": "^6.0.0"
