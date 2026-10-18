@@ -34,8 +34,11 @@ export function mountRouter(root) {
   root.replaceChildren(h('a', { class: 'skip', href: '#main' }, 'К содержимому'), main, nav);
 
   let token = 0;
+  let cleanup = null;
   async function render() {
     const my = ++token;
+    try { cleanup?.(); } catch (e) { console.warn(e); }
+    cleanup = null;
     const found = match(current());
     const { r, params } = found ?? match('/');
     const activeTab = r.tab ?? '/';
@@ -47,7 +50,8 @@ export function mountRouter(root) {
     main.replaceChildren(h('p', { class: 'loading' }, 'Загрузка…'));
     try {
       const view = await r.view(params);
-      if (my !== token) return;
+      if (my !== token) { view?.__cleanup?.(); return; }
+      cleanup = view?.__cleanup ?? null;
       main.replaceChildren(view);
     } catch (e) {
       console.error(e);

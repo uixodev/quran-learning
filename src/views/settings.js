@@ -1,5 +1,7 @@
 import { h } from '../dom.js';
-import { loadReciters } from '../data.js';
+import { loadReciters, loadSurahs } from '../data.js';
+import { cachedSummary, deleteSurahAudio, formatBytes, storageEstimate } from '../audio/store.js';
+import { downloadControls } from './downloads.js';
 import { settings, setSetting } from '../settings.js';
 import { exportProgress, importProgress } from '../backup.js';
 import { subHeader, toggle } from '../ui.js';
@@ -23,6 +25,7 @@ function segmented(name, options, value, onChange) {
 
 export async function settingsView() {
   const { reciters } = await loadReciters();
+  const surahs = (await loadSurahs()).filter((x) => x.available);
 
   const preview = h('p', { class: 'ar-preview', lang: 'ar', dir: 'rtl', style: `font-size:${settings.arabicSize}px` }, 'بِسۡمِ ٱللَّهِ ٱلرَّحۡمَٰنِ ٱلرَّحِيمِ');
   const sizeVal = h('output', { class: 'size-val' }, `${settings.arabicSize}`);
@@ -35,7 +38,7 @@ export async function settingsView() {
 
   const reciter = h('select', { class: 'select', 'aria-label': 'Чтец' },
     reciters.map((r) => h('option', { value: r.id, selected: r.id === settings.reciter }, `${r.name} (${r.nameLat})`)));
-  reciter.addEventListener('change', () => setSetting('reciter', reciter.value));
+  reciter.addEventListener('change', () => { setSetting('reciter', reciter.value); buildDownloads(); });
 
   const status = h('p', { class: 'status', role: 'status' });
   const fileInput = h('input', { type: 'file', accept: 'application/json,.json', hidden: true });
@@ -54,7 +57,35 @@ export async function settingsView() {
     }
   });
 
-  return h('div', { class: 'stack' },
+  // Загрузки аудио для выбранного чтеца.
+  const dlCard = h('section', { class: 'card' });
+  const cleanups = [];
+  async function buildDownloads() {
+    cleanups.splice(0).forEach((fn) => fn());
+    const rid = settings.reciter;
+    const [summary, est] = await Promise.all([cachedSummary(), storageEstimate()]);
+    const saved = surahs.filter((x) => summary[`${rid}:${x.id}`]);
+    const usage = h('p', { class: 'muted small' }, est ? `Занято на устройстве приложением: ${formatBytes(est.usage)}.` : '');
+    const rows = surahs.map((x) => {
+      const ctl = downloadControls(x, rid, { compact: true, onChange: () => refreshUsage() });
+      cleanups.push(() => ctl.__cleanup?.());
+      return h('div', { class: 'dl-row' }, h('div', { class: 'dl-name' }, h('b', {}, `${x.id}. ${x.ru}`), h('small', {}, x.lat)), ctl);
+    });
+    async function refreshUsage() { const e = await storageEstimate(); if (e) usage.textContent = `Занято на устройстве приложением: ${formatBytes(e.usage)}.`; }
+    dlCard.replaceChildren(
+      h('h2', {}, 'Загрузки аудио'),
+      h('p', { class: 'muted small' }, 'Скачанное аудио работает без интернета. Скачивается только для выбранного чтеца.'),
+      usage,
+      saved.length ? h('button', { class: 'btn small danger', type: 'button', onclick: async () => {
+        if (!confirm('Удалить всё скачанное аудио этого чтеца?')) return;
+        for (const x of saved) await deleteSurahAudio(rid, x.id);
+        buildDownloads();
+      } }, 'Удалить всё аудио этого чтеца') : null,
+      h('div', { class: 'dl-list' }, rows));
+  }
+  buildDownloads();
+
+  const page = h('div', { class: 'stack' },
     subHeader('#/', 'Главная', 'Настройки'),
     h('section', { class: 'card' },
       h('h2', {}, 'Чтение'),
@@ -81,8 +112,8 @@ export async function settingsView() {
         } }, 'Сохранить в файл'),
         h('button', { class: 'btn', type: 'button', onclick: () => fileInput.click() }, 'Загрузить из файла')),
       fileInput, status),
-    h('section', { class: 'card' },
-      h('h2', {}, 'Загрузки аудио'),
-      h('p', { class: 'muted small' }, 'Скачивание и удаление аудио по сурам появится на следующем этапе.')),
+    dlCard,
   );
+  page.__cleanup = () => cleanups.splice(0).forEach((fn) => fn());
+  return page;
 }

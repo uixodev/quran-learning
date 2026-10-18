@@ -7,6 +7,11 @@ export const DEFAULTS = {
   showTranslation: true,
   showTajweed: true,
   reciter: 'alafasy',
+  listenMode: 'single',    // single | chain
+  listenRepeats: 3,        // 1 | 3 | 5 | 10 | 0 (бесконечно)
+  listenSpeed: 1,          // 0.75 … 1
+  listenAutoNext: true,
+  listenFocus: false,
 };
 
 const state = { ...DEFAULTS };

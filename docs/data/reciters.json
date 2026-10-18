@@ -1,9 +1,28 @@
 {
-  "_comment": "Аудио не хранится в репозитории: приложение скачивает его на телефон по audioUrl и кэширует. Проверка адресов: npm run audio:check",
-  "audioUrl": "https://everyayah.com/data/{folder}/{s}{a}.mp3",
+  "_comment": "Аудио не хранится в репозитории: приложение скачивает его на телефон и кэширует. Источники пробуются по порядку. Проверка адресов и CORS: npm run audio:check",
+  "templates": {
+    "everyayah": "https://everyayah.com/data/{folder}/{s}{a}.mp3",
+    "islamic": "https://cdn.islamic.network/quran/audio/{bitrate}/{edition}/{n}.mp3"
+  },
   "default": "alafasy",
   "reciters": [
-    { "id": "alafasy", "name": "Мишари Рашид аль-Афаси", "nameLat": "Mishary Rashid Alafasy", "folder": "Alafasy_128kbps" },
-    { "id": "husary", "name": "Махмуд Халиль аль-Хусари", "nameLat": "Mahmoud Khalil Al-Husary", "folder": "Husary_128kbps" }
+    {
+      "id": "alafasy",
+      "name": "Мишари Рашид аль-Афаси",
+      "nameLat": "Mishary Rashid Alafasy",
+      "sources": [
+        { "type": "everyayah", "folder": "Alafasy_128kbps" },
+        { "type": "islamic", "edition": "ar.alafasy", "bitrate": 128 }
+      ]
+    },
+    {
+      "id": "husary",
+      "name": "Махмуд Халиль аль-Хусари",
+      "nameLat": "Mahmoud Khalil Al-Husary",
+      "sources": [
+        { "type": "everyayah", "folder": "Husary_128kbps" },
+        { "type": "islamic", "edition": "ar.husary", "bitrate": 128 }
+      ]
+    }
   ]
 }

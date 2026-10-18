@@ -2,7 +2,7 @@
 export const STEPS = [
   { id: 'understand', n: 1, title: 'Понять', hint: 'Смысл каждого аята', ready: true },
   { id: 'read', n: 2, title: 'Читать', hint: 'Арабский текст с таджвидом', ready: true },
-  { id: 'listen', n: 3, title: 'Слушать и повторять', hint: 'Чтец, повтор, цепочки аятов', ready: false },
+  { id: 'listen', n: 3, title: 'Слушать и повторять', hint: 'Чтец, повтор, цепочки аятов', ready: true },
   { id: 'memorize', n: 4, title: 'Запомнить', hint: 'Слова постепенно скрываются', ready: false },
   { id: 'review', n: 5, title: 'Повторение', hint: 'Интервальные карточки', ready: false },
 ];

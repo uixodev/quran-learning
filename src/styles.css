@@ -345,3 +345,55 @@ input[type='range'] { width: 100%; accent-color: var(--accent); height: 40px; }
 .legend-box { border-top: 1px solid var(--line); margin-top: 4px; }
 .action-bar { position: static; padding: 24px 0 8px; }
 .node.current.soon .node-dot { border-color: var(--line); color: var(--muted); box-shadow: none; }
+
+/* ───────── Этап 3: аудио ───────── */
+.dl { display: flex; flex-direction: column; gap: 8px; }
+.dl-line { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.dl .ok { color: var(--accent); font-weight: 600; }
+.dl.compact .dl-line { flex-wrap: nowrap; }
+.link { background: none; border: 0; color: var(--accent); font-weight: 600; padding: 12px 6px; min-height: 48px; cursor: pointer; }
+.btn.small { min-height: 48px; padding: 0 16px; font-size: 15.5px; }
+.bar.big { height: 10px; border-radius: 5px; }
+.bar.big > span { background: var(--accent); }
+
+.listen { padding-bottom: 150px; }
+.listen.tune-open { padding-bottom: 400px; }
+.lyric .verse { cursor: pointer; opacity: .5; transition: opacity .25s; border-radius: 14px; padding: 18px 10px; }
+.lyric .verse.active { opacity: 1; background: var(--accent-soft); }
+.lyric .verse:focus-visible { outline-offset: -3px; }
+.listen .ar-line { font-size: var(--ar-size, 34px); }
+.listen:not(.focus-mode) .focus { display: none; }
+.listen.focus-mode .lyric { display: none; }
+.focus { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 20px; min-height: 48vh; padding: 12px 4px; touch-action: pan-y; }
+.focus-ar { font-family: var(--font-ar); font-size: calc(var(--ar-size, 34px) * 1.45); line-height: 2.1; margin: 0; }
+.focus-ru { font-size: 18px; color: var(--muted); max-width: 30em; margin: 0; }
+.badge.big { width: 44px; height: 44px; font-size: 17px; }
+
+.player {
+  position: fixed; left: 0; right: 0; bottom: calc(var(--tab-h) + var(--sab)); z-index: 15;
+  max-width: 640px; margin: 0 auto; padding: 10px 16px 12px;
+  background: color-mix(in srgb, var(--surface) 95%, transparent);
+  backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+  border: 1px solid var(--line); border-bottom: 0; border-radius: 22px 22px 0 0; box-shadow: 0 -6px 24px rgba(30, 20, 5, .08);
+}
+.player-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.counter { white-space: nowrap; font-size: 14.5px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.tune-btn { white-space: nowrap; background: var(--surface-2); border: 0; border-radius: 12px; min-height: 44px; padding: 0 14px; font-size: 14.5px; font-weight: 600; color: var(--accent); cursor: pointer; }
+.player-ctl { display: flex; align-items: center; justify-content: center; gap: 28px; padding-top: 6px; }
+.ctl { width: 60px; height: 60px; border-radius: 50%; border: 0; background: transparent; color: var(--ink); display: grid; place-items: center; cursor: pointer; }
+.ctl:disabled { opacity: .3; }
+.play-btn { width: 76px; height: 76px; border-radius: 50%; border: 0; background: var(--accent); color: var(--accent-ink); display: grid; place-items: center; cursor: pointer; box-shadow: var(--shadow); }
+.play-btn.loading { opacity: .7; }
+.tune { display: flex; flex-direction: column; gap: 6px; padding-bottom: 8px; border-bottom: 1px solid var(--line); margin-bottom: 8px; }
+.tune[hidden], .from-row[hidden] { display: none; }
+.chips { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.chips-label { flex: 0 0 92px; font-size: 14px; color: var(--muted); }
+.chip { min-height: 44px; min-width: 44px; padding: 0 10px; border-radius: 12px; border: 1px solid var(--line); background: var(--surface); font-weight: 600; font-size: 15px; cursor: pointer; }
+.chip.on { background: var(--accent); color: var(--accent-ink); border-color: transparent; }
+.finished .counter::after { content: ' · готово'; color: var(--gold); }
+@media (max-width: 360px) { .chips-label { flex-basis: 100%; } }
+.dl-list { display: flex; flex-direction: column; }
+.dl-row { display: flex; flex-direction: column; gap: 4px; padding: 12px 0; border-top: 1px solid var(--line); }
+.dl-name { display: flex; flex-direction: column; }
+.dl-name small { color: var(--muted); }
+.btn.danger { color: var(--danger); }
