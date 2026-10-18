@@ -1,0 +1,9 @@
+{
+  "_comment": "Аудио не хранится в репозитории: приложение скачивает его на телефон по audioUrl и кэширует. Проверка адресов: npm run audio:check",
+  "audioUrl": "https://everyayah.com/data/{folder}/{s}{a}.mp3",
+  "default": "alafasy",
+  "reciters": [
+    { "id": "alafasy", "name": "Мишари Рашид аль-Афаси", "nameLat": "Mishary Rashid Alafasy", "folder": "Alafasy_128kbps" },
+    { "id": "husary", "name": "Махмуд Халиль аль-Хусари", "nameLat": "Mahmoud Khalil Al-Husary", "folder": "Husary_128kbps" }
+  ]
+}

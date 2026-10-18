@@ -1,0 +1,64 @@
+{
+  "generatedBy": "scripts/build-data.mjs",
+  "surahs": [
+    1,
+    78,
+    79,
+    80,
+    81,
+    82,
+    83,
+    84,
+    85,
+    86,
+    87,
+    88,
+    89,
+    90,
+    91,
+    92,
+    93,
+    94,
+    95,
+    96,
+    97,
+    98,
+    99,
+    100,
+    101,
+    102,
+    103,
+    104,
+    105,
+    106,
+    107,
+    108,
+    109,
+    110,
+    111,
+    112,
+    113,
+    114
+  ],
+  "sources": {
+    "quran-json": {
+      "npm": "quran-json@3.1.2",
+      "version": "3.1.2",
+      "license": "CC-BY-4.0",
+      "used": "арабский текст (Uthmani), перевод Э. Кулиева (Tanzil ru.kuliev), транслитерация (Tanzil en.transliteration), названия и тип сур",
+      "sha256_ru_chapter_1": "ff828453f9f4e234a21a9a04fcaec7481e58f57c656802b9a569fc1ff1a21344"
+    },
+    "react-native-quran-tajweed": {
+      "npm": "react-native-quran-tajweed@0.1.3",
+      "version": "0.1.3",
+      "license": "MIT",
+      "used": "разметка таджвида (Quran.com text_uthmani_tajweed), перенесённая на базовый текст"
+    }
+  },
+  "tajweedMapping": {
+    "rulesInSource": 2794,
+    "rulesMapped": 2790,
+    "mappedPercent": 99.86,
+    "lowCoverageAyahs": []
+  }
+}

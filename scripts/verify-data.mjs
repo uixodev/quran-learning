@@ -1,0 +1,49 @@
+#!/usr/bin/env node
+// Независимая проверка собранных данных (запускать после build-data.mjs).
+//  1. Перевод Кулиева и транслитерация сверяются с другой копией Tanzil
+//     (fawazahmed0/quran-api) — должны совпадать побайтно.
+//  2. Арабский текст сверяется со вторым источником (QUL/Tarteel) по
+//     «скелету» букв (без огласовок) — расхождения только в орфографии знаков.
+//  3. Целостность: число аятов, диапазоны таджвида.
+import { join } from 'node:path';
+import { SOURCES } from './config.mjs';
+import { DATA, fetchFile, fetchNpm, readJson, pad3 } from './lib/util.mjs';
+
+const surahs = readJson(join(DATA, 'surahs.json')).filter((s) => s.available);
+let fail = 0;
+const err = (m) => { fail++; console.log('✗', m); };
+
+// 1. Tanzil-копия
+const ruFile = await fetchFile(`${SOURCES.fawaz.base}/rus-elmirkuliev.json`, 'fawaz/rus-elmirkuliev.json');
+const trFile = await fetchFile(`${SOURCES.fawaz.base}/ara-quran-la.json`, 'fawaz/ara-quran-la.json');
+const idx = (f) => Object.fromEntries(readJson(f).quran.map((x) => [`${x.chapter}:${x.verse}`, x.text]));
+const RU = idx(ruFile), TR = idx(trFile);
+
+// 2. QUL
+const qul = readJson(join(fetchNpm(SOURCES.qul.npm), 'data/quran-verses.json'));
+const QUL = Object.fromEntries(Object.values(qul).map((o) => [`${o.surah}:${o.ayah}`, o.text]));
+const skeleton = (s) => s.normalize('NFC')
+  .replace(/[ؐ-ًؚ-ٰٟۖ-ۭـ​-‏\s]/g, '')
+  .replace(/[ٱأإآ]/g, 'ا').replace(/[ىيٮیې]/g, 'ي').replace(/ة/g, 'ه').replace(/[ؤئ]/g, 'ء');
+
+let n = 0, ruBad = 0, trBad = 0, arBad = 0;
+const arList = [];
+for (const meta of surahs) {
+  const { ayahs } = readJson(join(DATA, 'surah', `${pad3(meta.id)}.json`));
+  if (ayahs.length !== meta.ayahs) err(`${meta.id}: аятов ${ayahs.length}, ожидалось ${meta.ayahs}`);
+  for (const a of ayahs) {
+    n++;
+    const k = `${meta.id}:${a.n}`;
+    if (a.ru !== RU[k]) { ruBad++; err(`перевод ${k} отличается от Tanzil`); }
+    if (a.tr !== TR[k]) { trBad++; err(`транслитерация ${k} отличается от Tanzil`); }
+    if (skeleton(a.ar) !== skeleton(QUL[k] ?? '')) { arBad++; arList.push(k); }
+    const len = [...a.ar].length;
+    for (const [s, e, r] of a.tj) if (!(0 <= s && s < e && e <= len && r >= 0)) err(`таджвид ${k}: диапазон ${s}-${e}`);
+  }
+}
+console.log(`Проверено аятов: ${n}`);
+console.log(`Перевод Кулиева ≠ Tanzil:        ${ruBad}`);
+console.log(`Транслитерация ≠ Tanzil:         ${trBad}`);
+console.log(`Арабский ≠ QUL (по скелету):     ${arBad}${arList.length ? '  → ' + arList.join(', ') : ''}`);
+console.log(fail ? `\nОшибок: ${fail}` : '\nВсё сошлось.');
+process.exit(fail ? 1 : 0);

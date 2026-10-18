@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Тартиль</title>
+  <meta name="description" content="Тартиль — спокойное приложение для изучения сур и дуа." />
+  <meta name="theme-color" content="#FAF6EC" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#0B1220" media="(prefers-color-scheme: dark)" />
+  <link rel="manifest" href="./manifest.webmanifest" />
+  <link rel="icon" type="image/svg+xml" href="./icons/icon.svg" />
+  <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="Тартиль" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <script>
+    // Тема до первой отрисовки, чтобы не мигало.
+    try {
+      var t = localStorage.getItem('tartil.theme');
+      if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t;
+    } catch (e) {}
+  </script>
+</head>
+<body>
+  <div id="app"></div>
+  <noscript>Для работы приложения нужен JavaScript.</noscript>
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>
