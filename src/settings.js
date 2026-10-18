@@ -5,6 +5,7 @@ export const DEFAULTS = {
   arabicSize: 34,       // px
   showTranslit: true,
   showTranslation: true,
+  showTajweed: true,
   reciter: 'alafasy',
 };
 
@@ -38,6 +39,7 @@ export async function loadSettings() {
 }
 
 export async function setSetting(key, value) {
+  if (key === 'arabicSize') value = Math.min(56, Math.max(24, Math.round(value)));
   state[key] = value;
   if (key === 'theme') applyTheme();
   listeners.forEach((fn) => fn(key, value));
