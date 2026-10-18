@@ -17,7 +17,9 @@ import { getEdition, stripTrailing } from './lib/alquran.mjs';
 const EDITIONS = { ar: 'quran-uthmani', ru: 'ru.kuliev', tr: 'en.transliteration' };
 const MARKS = /[ؐ-ًؚ-ٰٟۖ-ۭـ​-‏\s]/g;
 // Скелет: буквы без огласовок.
-const skeleton = (s) => s.normalize('NFC').replace(MARKS, '')
+// Хамза на подставке в двух записях: «يٕ» (буква + знак U+0654/U+0655) и готовая «ئ ؤ أ إ» — одна и та же буква.
+const HAMZA_SEAT = /[\u0627\u0648\u064A\u0649]?[\u0654\u0655]/g;
+const skeleton = (s) => s.normalize('NFC').replace(HAMZA_SEAT, '\u0621').replace(MARKS, '')
   .replace(/[ٱأإآ]/g, 'ا').replace(/[ىيٮیې]/g, 'ي').replace(/ة/g, 'ه').replace(/[ؤئ]/g, 'ء');
 // Мягкий скелет: ещё и без алифов и хамз (в Tanzil «ءَاخِرَة», в мусхафе «ٱلۡأٓخِرَة»).
 const loose = (s) => skeleton(s).replace(/[اء]/g, '');

@@ -25,9 +25,15 @@ const RU = idx(ruFile), TR = idx(trFile);
 // 2. QUL
 const qul = readJson(join(fetchNpm(SOURCES.qul.npm), 'data/quran-verses.json'));
 const QUL = Object.fromEntries(Object.values(qul).map((o) => [`${o.surah}:${o.ayah}`, o.text]));
-const skeleton = (s) => s.normalize('NFC')
+// Хамза на подставке: «يٕ» (буква + знак U+0654/U+0655) и готовая «ئ» — одна и та же буква.
+const HAMZA_SEAT = /[\u0627\u0648\u064A\u0649]?[\u0654\u0655]/g;
+const skeleton = (s) => s.normalize('NFC').replace(HAMZA_SEAT, '\u0621')
   .replace(/[ؐ-ًؚ-ٰٟۖ-ۭـ​-‏\s]/g, '')
   .replace(/[ٱأإآ]/g, 'ا').replace(/[ىيٮیې]/g, 'ي').replace(/ة/g, 'ه').replace(/[ؤئ]/g, 'ء');
+
+// Буквы совпадают, либо различаются только записью хамзы/алифа («ٱلۡأٓخِرَة» в мусхафе, «ءَاخِرَة» у Tanzil).
+const loose = (s) => skeleton(s).replace(/[\u0627\u0621]/g, '');
+const sameLetters = (a, b) => skeleton(a) === skeleton(b) || loose(a) === loose(b);
 
 let n = 0, ruBad = 0, trBad = 0, arBad = 0;
 const arList = [];
@@ -41,7 +47,7 @@ for (const meta of surahs) {
     const ruOk = overlay ? stripTrailing(a.ru) === stripTrailing(RU[k] ?? '') : a.ru === RU[k];
     if (!ruOk) { ruBad++; err(`перевод ${k} отличается от Tanzil`); }
     if (!overlay && a.tr !== TR[k]) { trBad++; err(`транслитерация ${k} отличается от Tanzil`); }
-    if (skeleton(a.ar) !== skeleton(QUL[k] ?? '')) { arBad++; arList.push(k); }
+    if (!sameLetters(a.ar, QUL[k] ?? '')) { arBad++; arList.push(k); }
     const len = [...a.ar].length;
     for (const [s, e, r] of a.tj) if (!(0 <= s && s < e && e <= len && r >= 0)) err(`таджвид ${k}: диапазон ${s}-${e}`);
   }
@@ -49,6 +55,6 @@ for (const meta of surahs) {
 console.log(`Проверено аятов: ${n}`);
 console.log(`Перевод Кулиева ≠ Tanzil${overlay ? ' (кроме пунктуации)' : ''}: ${ruBad}`);
 console.log(overlay ? 'Транслитерация: из alquran.cloud (en.transliteration), с Tanzil не сравнивается' : `Транслитерация ≠ Tanzil:         ${trBad}`);
-console.log(`Арабский ≠ QUL (по скелету):     ${arBad}${arList.length ? '  → ' + arList.join(', ') : ''}`);
+console.log(`Арабский ≠ QUL (буквы):         ${arBad}${arList.length ? '  → ' + arList.join(', ') : ''}`);
 console.log(fail ? `\nОшибок: ${fail}` : '\nВсё сошлось.');
 process.exit(fail ? 1 : 0);
