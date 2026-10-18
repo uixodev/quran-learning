@@ -28,6 +28,10 @@ npm run preview
 Деплой: при пуше в `main` workflow `.github/workflows/deploy.yml` собирает сайт и публикует его на Pages.
 Один раз включите: **Settings → Pages → Build and deployment → Source: GitHub Actions**.
 
+**Запасной вариант без Actions** (если workflow не запускается): готовая сборка лежит в `docs/`.
+Settings → Pages → Source: **Deploy from a branch** → Branch: `main`, папка `/docs`.
+После изменений кода обновляйте её командой `npm run build:docs` и коммитьте `docs/`.
+
 ## Данные и их источники
 
 Текст Корана, перевод, транслитерация и таджвид **не набирались вручную**: `scripts/build-data.mjs`

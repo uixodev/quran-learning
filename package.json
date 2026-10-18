@@ -12,7 +12,8 @@
     "data:verify": "node scripts/verify-data.mjs",
     "data:compare-alquran": "node scripts/compare-alquran-cloud.mjs",
     "audio:check": "node scripts/check-audio-urls.mjs",
-    "data:import-alquran": "node scripts/import-alquran.mjs"
+    "data:import-alquran": "node scripts/import-alquran.mjs",
+    "build:docs": "OUT_DIR=docs vite build && node -e \"require('fs').writeFileSync('docs/.nojekyll','')\""
   },
   "devDependencies": {
     "vite": "^6.0.0"

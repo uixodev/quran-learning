@@ -7,8 +7,10 @@ const DATA_DIR = resolve('data');
 
 /** /data — это каталог с JSON в корне репозитория: в dev отдаём как есть, в build копируем в dist/data. */
 function dataPlugin() {
+  let outDir = 'dist';
   return {
     name: 'tartil-data',
+    configResolved(config) { outDir = config.build.outDir; },
     configureServer(server) {
       server.middlewares.use('/data', (req, res, next) => {
         const file = join(DATA_DIR, decodeURIComponent(req.url.split('?')[0]));
@@ -19,13 +21,14 @@ function dataPlugin() {
     },
     closeBundle() {
       if (this.meta?.watchMode) return;
-      cpSync(DATA_DIR, resolve('dist/data'), { recursive: true });
+      cpSync(DATA_DIR, resolve(outDir, 'data'), { recursive: true });
     },
   };
 }
 
 /** Генерирует dist/sw.js: список файлов оболочки и данных для офлайна + версия по хэшу содержимого. */
 function serviceWorkerPlugin() {
+  let outDir = 'dist';
   const walk = (dir) =>
     readdirSync(dir).flatMap((n) => {
       const p = join(dir, n);
@@ -35,10 +38,11 @@ function serviceWorkerPlugin() {
     name: 'tartil-sw',
     apply: 'build',
     enforce: 'post',
+    configResolved(config) { outDir = config.build.outDir; },
     closeBundle: {
       order: 'post',
       handler() {
-        const dist = resolve('dist');
+        const dist = resolve(outDir);
         const files = walk(dist)
           .map((p) => relative(dist, p).split(sep).join('/'))
           .filter((f) => f !== 'sw.js' && f !== 'data/sources.json')
@@ -60,5 +64,5 @@ function serviceWorkerPlugin() {
 export default defineConfig({
   base: './',
   plugins: [dataPlugin(), serviceWorkerPlugin()],
-  build: { target: 'es2020', assetsInlineLimit: 0 },
+  build: { target: 'es2020', assetsInlineLimit: 0, outDir: process.env.OUT_DIR || 'dist', emptyOutDir: true },
 });
